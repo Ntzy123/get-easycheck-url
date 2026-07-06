@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "get-easycheck-url"
+version = "1.0.0"
+description = "自动登录并获取 easycheck 授权链接"
+license = { text = "MIT" }
+authors = [{ name = "Ntzy123"}]
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "requests>=2.31.0",
+]
+
+[project.optional-dependencies]
+build = ["pyinstaller"]
+test = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+]
+
+[project.scripts]
+get-easycheck-url = "get_easycheck_url.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+norecursedirs = [
+    ".venv",
+    "venv",
+    "dist",
+    "build",
+]
