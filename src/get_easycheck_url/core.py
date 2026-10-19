@@ -12,9 +12,11 @@ _RURL = "/nightAnswer"
 
 
 def _parse_param(url: str, key: str) -> str:
-    """从 URL 中提取指定查询参数的值。"""
+    """从 URL 中提取指定参数的值（兼容参数位于 fragment 的情况）。"""
     parsed = urllib.parse.urlparse(url)
-    params = urllib.parse.parse_qs(parsed.query, keep_blank_values=True)
+    # 形如 .../#/nightAnswer?accessToken=xxx 时参数在 fragment 里
+    query = parsed.query or parsed.fragment.partition("?")[2]
+    params = urllib.parse.parse_qs(query, keep_blank_values=True)
     return params[key][0]
 
 
@@ -31,6 +33,20 @@ def get_easycheck_url(mobile: str, password: str) -> str:
     Raises:
         RuntimeError: 任意 HTTP 或解析异常。
     """
+    return _get_final_url(mobile, password)
+
+
+def get_access_token(mobile: str, password: str) -> str:
+    """完成登录 + easycheck 授权，仅返回 accessToken 值。
+
+    Raises:
+        RuntimeError: 任意 HTTP 或解析异常。
+    """
+    return _parse_param(_get_final_url(mobile, password), "accessToken")
+
+
+def _get_final_url(mobile: str, password: str) -> str:
+    """走完整授权流程，返回最终 Location URL。"""
     session = requests.Session()
     session.headers.update(
         {
